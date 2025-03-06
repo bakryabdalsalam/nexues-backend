@@ -189,8 +189,14 @@ const authController = {
         }
 
         // Generate new tokens
-        const accessToken = generateToken(user.id, '15m');
-        const newRefreshToken = generateToken(user.id, '7d');
+        const tokenPayload: TokenPayload = {
+          id: user.id,
+          email: user.email,
+          role: user.role
+        };
+        
+        const accessToken = generateToken(tokenPayload, '15m');
+        const newRefreshToken = generateToken(tokenPayload, '7d');
 
         // Set the new refresh token in cookie
         res.cookie('refreshToken', newRefreshToken, COOKIE_OPTIONS);

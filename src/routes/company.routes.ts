@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { authenticate } from '../middleware/auth.middleware';
 import { companyController } from '../controllers/company.controller';
 import { checkRole } from '../middleware/auth.middleware';
@@ -10,10 +10,14 @@ router.use(authenticate);
 router.use(checkRole(['COMPANY']));
 
 // Company stats route
-router.get('/stats', companyController.getStats);
+router.get('/stats', (req: Request, res: Response, next: NextFunction) => {
+  companyController.getStats(req as AuthenticatedRequest, res).catch(next);
+});
 
 // Company profile routes
-router.get('/profile', companyController.getProfile);
+router.get('/profile', (req: Request, res: Response, next: NextFunction) => {
+  companyController.getProfile(req as AuthenticatedRequest, res).catch(next);
+});
 router.put('/profile', companyController.updateProfile);
 
 // Company jobs management routes
