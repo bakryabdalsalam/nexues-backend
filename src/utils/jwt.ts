@@ -11,11 +11,12 @@ export const generateToken = (payload: TokenPayload, expiresIn: string): string 
     role: payload.role
   };
   
-  return jwt.sign(jwtPayload, JWT_SECRET, { 
+  // Fix the typing issue with JWT signing
+  return jwt.sign(jwtPayload, Buffer.from(JWT_SECRET), { 
     expiresIn
   });
 };
 
 export const verifyToken = (token: string): JWTPayload => {
-  return jwt.verify(token, JWT_SECRET) as JWTPayload;
+  return jwt.verify(token, Buffer.from(JWT_SECRET)) as JWTPayload;
 };
