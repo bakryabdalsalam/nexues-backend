@@ -235,7 +235,9 @@ router.get('/:id', [
  *       403:
  *         description: Forbidden - Admin access required
  */
-router.post('/', authenticate, requireAdmin, validateJobCreation, jobController.createJob);
+router.post('/', authenticate, requireAdmin, validateJobCreation, (req: Request, res: Response, next: NextFunction) => {
+  jobController.createJob(req as AuthenticatedRequest, res).catch(next);
+});
 
 /**
  * @swagger
