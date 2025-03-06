@@ -12,10 +12,10 @@ export const generateToken = (payload: TokenPayload, expiresIn: string): string 
 
   const options: jwt.SignOptions = { expiresIn };
 
-  // Cast the secret as unknown then as jwt.Secret to satisfy the type
-  return jwt.sign(jwtPayload, JWT_SECRET as unknown as jwt.Secret, options);
+  // Cast the secret as any to bypass the type error
+  return jwt.sign(jwtPayload, JWT_SECRET as any, options);
 };
 
 export const verifyToken = (token: string): JWTPayload => {
-  return jwt.verify(token, JWT_SECRET as unknown as jwt.Secret) as JWTPayload;
+  return jwt.verify(token, JWT_SECRET as any) as JWTPayload;
 };
