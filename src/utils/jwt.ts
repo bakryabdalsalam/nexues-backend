@@ -11,15 +11,13 @@ export const generateToken = (payload: TokenPayload, expiresIn: string): string 
     role: payload.role
   };
   
-  // Use a more explicit type cast to resolve TypeScript error
-  const secret = JWT_SECRET as jwt.Secret;
-  
-  return jwt.sign(jwtPayload, secret, { 
+  // Fix the type error by properly typing the secret for jwt.sign
+  return jwt.sign(jwtPayload, String(JWT_SECRET), { 
     expiresIn 
   });
 };
 
 export const verifyToken = (token: string): JWTPayload => {
-  const secret = JWT_SECRET as jwt.Secret;
-  return jwt.verify(token, secret) as JWTPayload;
+  // Use the same String casting for consistency
+  return jwt.verify(token, String(JWT_SECRET)) as JWTPayload;
 };
