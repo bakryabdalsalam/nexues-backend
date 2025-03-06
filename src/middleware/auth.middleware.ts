@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '../utils/jwt';
 import { prisma } from '../config/prisma';
-import { AuthenticatedRequest } from '../types';
+import { AuthenticatedRequest, TokenPayload } from '../types';
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -21,18 +21,27 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
 
     // Get user from database
     const user = await prisma.user.findUnique({
-      where: { id: decoded.id }
+      where: { id: decoded.id },
+      select: {
+        id: true,
+        email: true,
+        role: true
+      }
     });
 
-    if (!user || !user.isActive) {
+    if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'User not found or inactive'
+        message: 'User not found'
       });
     }
 
     // Add user to request object
-    (req as AuthenticatedRequest).user = user;
+    (req as AuthenticatedRequest).user = {
+      id: user.id,
+      email: user.email,
+      role: user.role
+    };
     next();
   } catch (error) {
     console.error('Authentication error:', error);

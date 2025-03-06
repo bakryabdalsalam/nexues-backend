@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { applicationController } from '../controllers/application.controller';
 import { authenticate, requireAdmin } from '../middleware/auth.middleware';
 import { validateApplication } from '../middleware/validation.middleware';
@@ -83,7 +83,9 @@ const router = Router();
  *       401:
  *         description: Unauthorized
  */
-router.get('/me', authenticate, applicationController.getUserApplications);
+router.get('/me', authenticate, (req: Request, res: Response, next: NextFunction) => {
+  applicationController.getUserApplications(req as AuthenticatedRequest, res).catch(next);
+});
 
 /**
  * @swagger
@@ -160,7 +162,9 @@ router.get('/:id', authenticate, applicationController.getApplication);
  *       400:
  *         description: Invalid input or duplicate application
  */
-router.post('/', authenticate, validateApplication, applicationController.createApplication);
+router.post('/', authenticate, validateApplication, (req: Request, res: Response, next: NextFunction) => {
+  applicationController.createApplication(req as AuthenticatedRequest, res).catch(next);
+});
 
 /**
  * @swagger

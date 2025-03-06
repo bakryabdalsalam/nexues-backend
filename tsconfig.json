@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "types": ["node", "express"],
+    "types": ["node", "express", "jest"],
     "module": "CommonJS",
     "moduleResolution": "node",
     "outDir": "./dist",
@@ -16,8 +16,13 @@
     },
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "allowJs": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "noImplicitAny": false,
+    "strictNullChecks": false
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "prisma/**/*"],
   "exclude": ["node_modules", "dist"]
 }
