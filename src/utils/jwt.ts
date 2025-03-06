@@ -9,9 +9,13 @@ export const generateToken = (payload: TokenPayload, expiresIn: string): string 
     email: payload.email,
     role: payload.role
   };
-  return jwt.sign(jwtPayload, JWT_SECRET, { expiresIn });
+  
+  return jwt.sign(jwtPayload, JWT_SECRET, { 
+    expiresIn,
+    algorithm: 'HS256'
+  });
 };
 
 export const verifyToken = (token: string): JWTPayload => {
-  return jwt.verify(token, JWT_SECRET) as JWTPayload;
+  return jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] }) as JWTPayload;
 };

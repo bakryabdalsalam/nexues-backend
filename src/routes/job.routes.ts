@@ -268,7 +268,10 @@ router.post('/', authenticate, requireAdmin, validateJobCreation, jobController.
  *       404:
  *         description: Job not found
  */
-router.put('/:id', authenticate, requireAdmin, validateJobCreation, jobController.updateJob);
+router.put('/:id', authenticate, requireAdmin, (req: Request, res: Response, next: NextFunction) => {
+  const authenticatedReq = req as AuthenticatedRequest;
+  jobController.updateJob(authenticatedReq, res).catch(next);
+});
 
 /**
  * @swagger
