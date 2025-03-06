@@ -15,8 +15,8 @@ const generateToken = (userId, role, email, expiresIn = '15m') => {
         role,
         email
     };
-    // Ensure payload is treated as an object and secret as a string
-    return jsonwebtoken_1.default.sign(payload, secret, { expiresIn });
+    // Cast expiresIn to any to bypass type checking for the expiresIn option
+    return jsonwebtoken_1.default.sign(payload, secret, { expiresIn: expiresIn });
 };
 exports.generateToken = generateToken;
 const verifyToken = (token, isRefreshToken = false) => {
@@ -41,7 +41,6 @@ const verifyToken = (token, isRefreshToken = false) => {
 };
 exports.verifyToken = verifyToken;
 const verifyRefreshToken = (token) => {
-    // Ensure secret is treated as a string
     return jsonwebtoken_1.default.verify(token, REFRESH_TOKEN_SECRET);
 };
 exports.verifyRefreshToken = verifyRefreshToken;
