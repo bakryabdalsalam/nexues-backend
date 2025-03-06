@@ -479,5 +479,28 @@ export const jobController = {
       console.error('Get recommendations error:', error);
       res.status(500).json({ message: 'Error fetching job recommendations' });
     }
+  },
+
+  async updateJobStatus(req: AuthenticatedRequest, res: Response) {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      const updatedJob = await prisma.job.update({
+        where: { id },
+        data: { status }
+      });
+
+      return res.json({
+        success: true,
+        data: updatedJob
+      });
+    } catch (error) {
+      console.error('Update job status error:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Error updating job status'
+      });
+    }
   }
 };

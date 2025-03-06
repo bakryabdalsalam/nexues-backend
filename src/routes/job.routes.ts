@@ -3,6 +3,7 @@ import { jobController } from '../controllers/job.controller';
 import { authenticate, requireAdmin } from '../middleware/auth.middleware';
 import { validateJobCreation } from '../middleware/validation.middleware';
 import { query, param } from 'express-validator';
+import { AuthenticatedRequest } from '../types';
 
 const router = Router();
 
@@ -152,7 +153,9 @@ router.get('/', [
  *       401:
  *         description: Unauthorized
  */
-router.get('/recommendations', authenticate, jobController.getRecommendations);
+router.get('/recommendations', authenticate, (req: Request, res: Response, next: NextFunction) => {
+  jobController.getRecommendations(req as AuthenticatedRequest, res).catch(next);
+});
 
 /**
  * @swagger
@@ -293,15 +296,17 @@ router.put('/:id', authenticate, requireAdmin, validateJobCreation, jobControlle
  *         description: Job not found
  */
 router.delete('/:id', authenticate, requireAdmin, (req: Request, res: Response, next: NextFunction) => {
-  jobController.deleteJob(req as AuthenticatedRequest, res).catch(next);
+  const authenticatedReq = req as AuthenticatedRequest;
+  jobController.deleteJob(authenticatedReq, res).catch(next);
 });
 
 router.patch('/:id/status', authenticate, requireAdmin, (req: Request, res: Response, next: NextFunction) => {
-  jobController.updateJobStatus(req as AuthenticatedRequest, res).catch(next);
+  const authenticatedReq = req as AuthenticatedRequest;
+  jobController.updateJobStatus(authenticatedReq, res).catch(next);
 });
 
 // Public routes
 router.get('/stats', jobController.getJobStats);
 router.get('/:id/similar', jobController.getSimilarJobs);
 
-export default router;
+export { router as jobRoutes };
