@@ -119,7 +119,9 @@ router.get('/me', authenticate, (req: Request, res: Response, next: NextFunction
  *       404:
  *         description: Application not found
  */
-router.get('/:id', authenticate, applicationController.getApplication);
+router.get('/:id', authenticate, (req: Request, res: Response, next: NextFunction) => {
+  applicationController.getApplication(req as AuthenticatedRequest, res).catch(next);
+});
 
 /**
  * @swagger
@@ -218,105 +220,14 @@ router.patch('/:id/status',
   body('status')
     .isIn(['PENDING', 'REVIEWING', 'ACCEPTED', 'REJECTED'])
     .withMessage('Invalid status value'),
-  applicationController.updateApplicationStatus
+  (req: Request, res: Response, next: NextFunction) => {
+    applicationController.updateApplicationStatus(req as AuthenticatedRequest, res).catch(next);
+  }
 );
 
 // Get all applications (admin only)
-router.get('/', authenticate, requireAdmin, applicationController.getAllApplications);
-
-// Create application
-router.post('/', authenticate, async (req: AuthenticatedRequest, res) => {
-  try {
-    const { jobId, message, resume } = req.body;
-    const userId = req.user.id;
-
-    // Check if user has already applied
-    const existingApplication = await prisma.application.findFirst({
-      where: {
-        jobId,
-        userId
-      }
-    });
-
-    if (existingApplication) {
-      return res.status(400).json({
-        success: false,
-        message: 'You have already applied for this job'
-      });
-    }
-
-    const application = await prisma.application.create({
-      data: {
-        jobId,
-        userId,
-        message,
-        resume,
-        status: 'PENDING'
-      },
-      include: {
-        job: {
-          include: {
-            company: true
-          }
-        }
-      }
-    });
-
-    res.status(201).json({
-      success: true,
-      data: application
-    });
-  } catch (error) {
-    console.error('Create application error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error submitting application'
-    });
-  }
+router.get('/', authenticate, requireAdmin, (req: Request, res: Response, next: NextFunction) => {
+  applicationController.getAllApplications(req as AuthenticatedRequest, res).catch(next);
 });
 
-// Get application by ID
-router.get('/:id', authenticate, async (req: AuthenticatedRequest, res) => {
-  try {
-    const { id } = req.params;
-    
-    const application = await prisma.application.findUnique({
-      where: { id },
-      include: {
-        job: {
-          include: {
-            company: true
-          }
-        }
-      }
-    });
-
-    if (!application) {
-      return res.status(404).json({
-        success: false,
-        message: 'Application not found'
-      });
-    }
-
-    // Check if user is authorized to view this application
-    if (application.userId !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        message: 'Not authorized to view this application'
-      });
-    }
-
-    res.json({
-      success: true,
-      data: application
-    });
-  } catch (error) {
-    console.error('Get application error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching application'
-    });
-  }
-});
-
-export const applicationRoutes = router;
+export { router as applicationRoutes };

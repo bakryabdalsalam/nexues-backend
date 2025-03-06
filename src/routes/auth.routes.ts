@@ -1,8 +1,9 @@
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import authController from '../controllers/auth.controller';
 import { validateRegistration, validateLogin } from '../middleware/validation.middleware';
 import { authenticate } from '../middleware/auth.middleware';
 import { authLimiter, refreshTokenLimiter } from '../middleware/rate-limit.middleware';
+import { AuthenticatedRequest } from '../types';
 
 const router = Router();
 
@@ -174,11 +175,17 @@ router.post('/refresh', refreshTokenLimiter, authController.refresh);
  *       401:
  *         description: Unauthorized
  */
-router.get('/me', authenticate, authController.getProfile);
+router.get('/me', authenticate, (req: Request, res: Response, next: NextFunction) => {
+  authController.getProfile(req as AuthenticatedRequest, res).catch(next);
+});
 
 // Protected routes (require authentication)
 router.use(authenticate);
-router.post('/logout', authController.logout);
-router.get('/verify', authController.verifyToken);
+router.post('/logout', (req: Request, res: Response, next: NextFunction) => {
+  authController.logout(req as AuthenticatedRequest, res).catch(next);
+});
+router.get('/verify', (req: Request, res: Response, next: NextFunction) => {
+  authController.verifyToken(req as AuthenticatedRequest, res).catch(next);
+});
 
 export { router as authRoutes };

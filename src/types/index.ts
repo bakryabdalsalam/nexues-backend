@@ -30,3 +30,12 @@ export interface PaginationOptions {
   page?: number;
   limit?: number;
 }
+
+export interface ApplicationCreateInput {
+  jobId: string;
+  userId: string;
+  coverLetter?: string;
+  resume?: string;
+  message?: string;
+  status?: string;
+}

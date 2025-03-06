@@ -4,7 +4,7 @@ import { JWTPayload, TokenPayload } from '../types';
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export const generateToken = (payload: TokenPayload, expiresIn: string): string => {
-  return jwt.sign(payload as object, JWT_SECRET, { 
+  return jwt.sign(payload as Record<string, unknown>, JWT_SECRET, { 
     expiresIn,
     algorithm: 'HS256' 
   });
