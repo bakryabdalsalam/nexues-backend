@@ -103,9 +103,9 @@ export const applyForJob = async (req: Request, res: Response) => {
       data: {
         jobId,
         userId,
-        resume,
-        coverLetter,
-      },
+        ...(resume && { resume }),
+        ...(coverLetter && { coverLetter })
+      }
     });
 
     res.status(201).json(application);

@@ -5,6 +5,7 @@ import { validateApplication } from '../middleware/validation.middleware';
 import { body } from 'express-validator';
 import { prisma } from '../config/prisma';
 import { AuthenticatedRequest } from '../types';
+import { handleAuthRoute } from '../utils/route.utils';
 
 const router = Router();
 
@@ -83,9 +84,7 @@ const router = Router();
  *       401:
  *         description: Unauthorized
  */
-router.get('/me', authenticate, (req: Request, res: Response, next: NextFunction) => {
-  applicationController.getUserApplications(req as AuthenticatedRequest, res).catch(next);
-});
+router.get('/me', authenticate, handleAuthRoute(applicationController.getUserApplications));
 
 /**
  * @swagger
@@ -119,9 +118,7 @@ router.get('/me', authenticate, (req: Request, res: Response, next: NextFunction
  *       404:
  *         description: Application not found
  */
-router.get('/:id', authenticate, (req: Request, res: Response, next: NextFunction) => {
-  applicationController.getApplication(req as AuthenticatedRequest, res).catch(next);
-});
+router.get('/:id', authenticate, handleAuthRoute(applicationController.getApplication));
 
 /**
  * @swagger
@@ -164,9 +161,7 @@ router.get('/:id', authenticate, (req: Request, res: Response, next: NextFunctio
  *       400:
  *         description: Invalid input or duplicate application
  */
-router.post('/', authenticate, validateApplication, (req: Request, res: Response, next: NextFunction) => {
-  applicationController.createApplication(req as AuthenticatedRequest, res).catch(next);
-});
+router.post('/', authenticate, validateApplication, handleAuthRoute(applicationController.createApplication));
 
 /**
  * @swagger
@@ -220,14 +215,10 @@ router.patch('/:id/status',
   body('status')
     .isIn(['PENDING', 'REVIEWING', 'ACCEPTED', 'REJECTED'])
     .withMessage('Invalid status value'),
-  (req: Request, res: Response, next: NextFunction) => {
-    applicationController.updateApplicationStatus(req as AuthenticatedRequest, res).catch(next);
-  }
+  handleAuthRoute(applicationController.updateApplicationStatus)
 );
 
 // Get all applications (admin only)
-router.get('/', authenticate, requireAdmin, (req: Request, res: Response, next: NextFunction) => {
-  applicationController.getAllApplications(req as AuthenticatedRequest, res).catch(next);
-});
+router.get('/', authenticate, requireAdmin, handleAuthRoute(applicationController.getAllApplications));
 
 export { router as applicationRoutes };

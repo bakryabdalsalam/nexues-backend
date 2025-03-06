@@ -39,3 +39,13 @@ export interface ApplicationCreateInput {
   message?: string;
   status?: string;
 }
+
+// Update Prisma type definition for Application
+export interface ApplicationCreateData {
+  jobId: string;
+  userId: string;
+  coverLetter?: string;
+  resume?: string;
+  message?: string;
+  status?: string;
+}

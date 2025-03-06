@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { AppError } from '../middleware/error.middleware';
-import { AuthenticatedRequest, ApplicationCreateInput } from '../types';
+import { AuthenticatedRequest } from '../types';
 
 const prisma = new PrismaClient();
 
@@ -32,22 +32,15 @@ export const applicationController = {
         throw new AppError(400, 'You have already applied for this job');
       }
 
-      const applicationData: ApplicationCreateInput = {
-        jobId,
-        userId,
-        status: 'PENDING'
-      };
-      
-      if (coverLetter) {
-        applicationData['coverLetter'] = coverLetter;
-      }
-      
-      if (resume) {
-        applicationData['resume'] = resume;
-      }
-      
+      // Create the application with proper type-safety
       const application = await prisma.application.create({
-        data: applicationData,
+        data: {
+          jobId,
+          userId,
+          ...(coverLetter && { coverLetter }),
+          ...(resume && { resume }),
+          status: 'PENDING'
+        },
         include: {
           job: true,
           user: {
