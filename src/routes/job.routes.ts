@@ -1,9 +1,8 @@
-import { Router, Request, Response, NextFunction } from 'express';
+import { Router } from 'express';
 import { jobController } from '../controllers/job.controller';
 import { authenticate, requireAdmin } from '../middleware/auth.middleware';
 import { validateJobCreation } from '../middleware/validation.middleware';
 import { query, param } from 'express-validator';
-import { AuthenticatedRequest } from '../types';
 
 const router = Router();
 
@@ -153,9 +152,7 @@ router.get('/', [
  *       401:
  *         description: Unauthorized
  */
-router.get('/recommendations', authenticate, (req: Request, res: Response, next: NextFunction) => {
-  jobController.getRecommendations(req as AuthenticatedRequest, res).catch(next);
-});
+router.get('/recommendations', authenticate, jobController.getRecommendations);
 
 /**
  * @swagger
@@ -235,9 +232,7 @@ router.get('/:id', [
  *       403:
  *         description: Forbidden - Admin access required
  */
-router.post('/', authenticate, requireAdmin, validateJobCreation, (req: Request, res: Response, next: NextFunction) => {
-  jobController.createJob(req as AuthenticatedRequest, res).catch(next);
-});
+router.post('/', authenticate, requireAdmin, validateJobCreation, jobController.createJob);
 
 /**
  * @swagger
@@ -270,10 +265,7 @@ router.post('/', authenticate, requireAdmin, validateJobCreation, (req: Request,
  *       404:
  *         description: Job not found
  */
-router.put('/:id', authenticate, requireAdmin, (req: Request, res: Response, next: NextFunction) => {
-  const authenticatedReq = req as AuthenticatedRequest;
-  jobController.updateJob(authenticatedReq, res).catch(next);
-});
+router.put('/:id', authenticate, requireAdmin, validateJobCreation, jobController.updateJob);
 
 /**
  * @swagger
@@ -300,18 +292,10 @@ router.put('/:id', authenticate, requireAdmin, (req: Request, res: Response, nex
  *       404:
  *         description: Job not found
  */
-router.delete('/:id', authenticate, requireAdmin, (req: Request, res: Response, next: NextFunction) => {
-  const authenticatedReq = req as AuthenticatedRequest;
-  jobController.deleteJob(authenticatedReq, res).catch(next);
-});
-
-router.patch('/:id/status', authenticate, requireAdmin, (req: Request, res: Response, next: NextFunction) => {
-  const authenticatedReq = req as AuthenticatedRequest;
-  jobController.updateJobStatus(authenticatedReq, res).catch(next);
-});
+router.delete('/:id', authenticate, requireAdmin, jobController.deleteJob);
 
 // Public routes
 router.get('/stats', jobController.getJobStats);
 router.get('/:id/similar', jobController.getSimilarJobs);
 
-export { router as jobRoutes };
+export default router;

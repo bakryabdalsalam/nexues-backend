@@ -88,24 +88,13 @@ export const applyForJob = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Already applied for this job' });
     }
 
-    // Update the application creation code to avoid type errors
-    const applicationData = {
-      jobId,
-      userId,
-      status: 'PENDING'
-    };
-
-    if (coverLetter) {
-      applicationData['coverLetter'] = coverLetter;
-    }
-
     const application = await prisma.application.create({
       data: {
         jobId,
         userId,
-        ...(resume && { resume }),
-        ...(coverLetter && { coverLetter })
-      }
+        resume,
+        coverLetter,
+      },
     });
 
     res.status(201).json(application);
@@ -173,4 +162,4 @@ export const getAvailableJobs = async (req: Request, res: Response) => {
     console.error('Get jobs error:', error);
     res.status(500).json({ message: 'Error fetching jobs' });
   }
-};
+}; 

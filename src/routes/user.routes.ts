@@ -1,17 +1,16 @@
-import { Router, Request, Response } from 'express';
+import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { authenticate } from '../middleware/auth.middleware';
-import { AuthenticatedRequest } from '../types';
 
 const router = Router();
 const prisma = new PrismaClient();
 
 // Get user profile
-router.get('/profile', authenticate, async (req: Request, res: Response) => {
+router.get('/profile', authenticate, async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { 
-        id: (req as AuthenticatedRequest).user.id,
+        id: req.user.id,
       },
       include: {
         profile: true
@@ -39,11 +38,11 @@ router.get('/profile', authenticate, async (req: Request, res: Response) => {
 });
 
 // Get user applications
-router.get('/applications', authenticate, async (req: Request, res: Response) => {
+router.get('/applications', authenticate, async (req, res) => {
   try {
     const applications = await prisma.application.findMany({
       where: {
-        userId: (req as AuthenticatedRequest).user.id
+        userId: req.user.id
       },
       include: {
         job: {
@@ -71,7 +70,7 @@ router.get('/applications', authenticate, async (req: Request, res: Response) =>
 });
 
 // Update user profile
-router.put('/profile', authenticate, async (req: Request, res: Response) => {
+router.put('/profile', authenticate, async (req, res) => {
   try {
     const { 
       fullName,
@@ -83,12 +82,13 @@ router.put('/profile', authenticate, async (req: Request, res: Response) => {
       address,
       linkedIn,
       github,
-      portfolio
+      portfolio,
+      resume 
     } = req.body;
 
     const updatedProfile = await prisma.profile.upsert({
       where: {
-        userId: (req as AuthenticatedRequest).user.id
+        userId: req.user.id
       },
       update: {
         fullName,
@@ -100,10 +100,11 @@ router.put('/profile', authenticate, async (req: Request, res: Response) => {
         address,
         linkedIn,
         github,
-        portfolio
+        portfolio,
+        resume
       },
       create: {
-        userId: (req as AuthenticatedRequest).user.id,
+        userId: req.user.id,
         fullName,
         bio,
         skills,
@@ -113,7 +114,8 @@ router.put('/profile', authenticate, async (req: Request, res: Response) => {
         address,
         linkedIn,
         github,
-        portfolio
+        portfolio,
+        resume
       }
     });
 

@@ -7,7 +7,7 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import swaggerOptions from './config/swagger.config';
 import { db } from './services/database.service';
-import { jobRoutes } from './routes/job.routes';
+import jobRoutes from './routes/job.routes';
 import { authRoutes } from './routes/auth.routes';
 import { applicationRoutes } from './routes/application.routes';
 import { adminRoutes } from './routes/admin.routes';
@@ -17,6 +17,7 @@ import { userRoutes } from './routes/user.routes';
 import { errorHandler } from './middleware/error.middleware';
 import { apiLimiter, authLimiter } from './middleware/rate-limit.middleware';
 import { swaggerSpec } from './swagger';
+import indexRouter from './routes/index.routes';
 
 export const app: Express = express();
 
@@ -110,6 +111,9 @@ apiRouter.use('/applications', applicationRoutes);
 apiRouter.use('/admin', adminRoutes);
 apiRouter.use('/upload', uploadRoutes);
 apiRouter.use('/user', userRoutes); // Changed from /users to /user
+
+// Add this before other route handlers
+app.use('/', indexRouter);
 
 // Add explicit error handling for CORS errors
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

@@ -27,12 +27,13 @@ class DatabaseService {
       await this.prisma.$connect();
       console.log('Database connected successfully');
       
-      // Verify tables exist
-      const tableCount = await this.prisma.$queryRaw`
-        SELECT COUNT(*) FROM information_schema.tables 
+      // Get table names instead of just count
+      const tables = await this.prisma.$queryRaw`
+        SELECT table_name 
+        FROM information_schema.tables 
         WHERE table_schema = 'public'
       `;
-      console.log('Available tables:', tableCount);
+      console.log('Available tables:', tables);
       
     } catch (error) {
       console.error('Database connection error:', error);

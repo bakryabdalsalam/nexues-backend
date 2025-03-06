@@ -32,13 +32,12 @@ export const applicationController = {
         throw new AppError(400, 'You have already applied for this job');
       }
 
-      // Create the application with proper type-safety
       const application = await prisma.application.create({
         data: {
           jobId,
           userId,
-          ...(coverLetter && { coverLetter }),
-          ...(resume && { resume }),
+          coverLetter,
+          resume,
           status: 'PENDING'
         },
         include: {
