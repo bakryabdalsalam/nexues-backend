@@ -8,7 +8,7 @@ import cookieParser from 'cookie-parser';
 import swaggerOptions from './config/swagger.config';
 import { db } from './services/database.service';
 import jobRoutes from './routes/job.routes';
-import { authRoutes } from './routes/auth.routes';
+import authRoutes from './routes/auth.routes';
 import { applicationRoutes } from './routes/application.routes';
 import { adminRoutes } from './routes/admin.routes';
 import { uploadRoutes } from './routes/upload.routes';

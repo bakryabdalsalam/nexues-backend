@@ -1,7 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '../utils/jwt';
 import { prisma } from '../config/prisma';
-import { AuthenticatedRequest } from '../types';
+import { AuthenticatedRequest, TokenPayload } from '../types';
+
+// Create a type assertion function
+const assertAuthenticated = (req: Request): asserts req is AuthenticatedRequest => {
+  if (!('user' in req) || !req.user) {
+    throw new Error('User is not authenticated');
+  }
+};
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -21,7 +28,13 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
 
     // Get user from database
     const user = await prisma.user.findUnique({
-      where: { id: decoded.id }
+      where: { id: decoded.id },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        isActive: true
+      }
     });
 
     if (!user || !user.isActive) {
@@ -31,8 +44,13 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
       });
     }
 
-    // Add user to request object
-    (req as AuthenticatedRequest).user = user;
+    // Add user to request object with explicit type
+    (req as AuthenticatedRequest).user = {
+      id: user.id,
+      email: user.email,
+      role: user.role
+    };
+    
     next();
   } catch (error) {
     console.error('Authentication error:', error);

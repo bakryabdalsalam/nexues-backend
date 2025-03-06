@@ -8,6 +8,13 @@ const prisma = new PrismaClient();
 // Get user profile
 router.get('/profile', authenticate, async (req, res) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      });
+    }
+
     const user = await prisma.user.findUnique({
       where: { 
         id: req.user.id,
@@ -40,6 +47,13 @@ router.get('/profile', authenticate, async (req, res) => {
 // Get user applications
 router.get('/applications', authenticate, async (req, res) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      });
+    }
+
     const applications = await prisma.application.findMany({
       where: {
         userId: req.user.id
@@ -72,6 +86,13 @@ router.get('/applications', authenticate, async (req, res) => {
 // Update user profile
 router.put('/profile', authenticate, async (req, res) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      });
+    }
+
     const { 
       fullName,
       bio,

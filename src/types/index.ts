@@ -1,6 +1,20 @@
 import { Request } from 'express';
 import { UserRole } from '@prisma/client';
 
+export interface TokenPayload {
+  id: string;
+  role: UserRole;
+  email: string;
+}
+
+export interface AuthenticatedRequest extends Request {
+  user: TokenPayload;
+}
+
+export interface RequestWithUser extends Request {
+  user?: TokenPayload;
+}
+
 export interface UserPayload {
   id: string;
   email: string;
@@ -17,14 +31,4 @@ export interface JobFilters {
 export interface PaginationOptions {
   page?: number;
   limit?: number;
-}
-
-export interface TokenPayload {
-  id: string;
-  email: string;
-  role: UserRole;
-}
-
-export interface AuthenticatedRequest extends Request {
-  user: TokenPayload;
 }

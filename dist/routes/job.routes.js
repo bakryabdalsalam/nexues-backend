@@ -1,12 +1,12 @@
-import { Router } from 'express';
-import { jobController } from '../controllers/job.controller';
-import { authenticate, requireAdmin } from '../middleware/auth.middleware';
-import { validateJobCreation } from '../middleware/validation.middleware';
-import { query, param } from 'express-validator';
-import { withAuth } from '../utils/route-utils';
-
-const router = Router();
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const job_controller_1 = require("../controllers/job.controller");
+const auth_middleware_1 = require("../middleware/auth.middleware");
+const validation_middleware_1 = require("../middleware/validation.middleware");
+const express_validator_1 = require("express-validator");
+const route_utils_1 = require("../utils/route-utils");
+const router = (0, express_1.Router)();
 /**
  * @swagger
  * components:
@@ -39,7 +39,6 @@ const router = Router();
  *           type: string
  *           format: date-time
  */
-
 /**
  * @swagger
  * /api/jobs:
@@ -119,15 +118,14 @@ const router = Router();
  *                       type: integer
  */
 router.get('/', [
-  query('page').optional().isInt({ min: 1 }).toInt(),
-  query('limit').optional().isInt({ min: 1, max: 50 }).toInt(),
-  query('search').optional().isString().trim(),
-  query('location').optional().isString().trim(),
-  query('category').optional().isString().trim(),
-  query('experienceLevel').optional().isString().trim(),
-  query('remote').optional().isBoolean().toBoolean(),
-], jobController.getAllJobs);
-
+    (0, express_validator_1.query)('page').optional().isInt({ min: 1 }).toInt(),
+    (0, express_validator_1.query)('limit').optional().isInt({ min: 1, max: 50 }).toInt(),
+    (0, express_validator_1.query)('search').optional().isString().trim(),
+    (0, express_validator_1.query)('location').optional().isString().trim(),
+    (0, express_validator_1.query)('category').optional().isString().trim(),
+    (0, express_validator_1.query)('experienceLevel').optional().isString().trim(),
+    (0, express_validator_1.query)('remote').optional().isBoolean().toBoolean(),
+], job_controller_1.jobController.getAllJobs);
 /**
  * @swagger
  * /api/jobs/recommendations:
@@ -153,8 +151,7 @@ router.get('/', [
  *       401:
  *         description: Unauthorized
  */
-router.get('/recommendations', authenticate, withAuth(jobController.getRecommendations));
-
+router.get('/recommendations', auth_middleware_1.authenticate, (0, route_utils_1.withAuth)(job_controller_1.jobController.getRecommendations));
 /**
  * @swagger
  * /api/jobs/{id}:
@@ -184,9 +181,8 @@ router.get('/recommendations', authenticate, withAuth(jobController.getRecommend
  *         description: Job not found
  */
 router.get('/:id', [
-  param('id').isUUID()
-], jobController.getJobById);
-
+    (0, express_validator_1.param)('id').isUUID()
+], job_controller_1.jobController.getJobById);
 /**
  * @swagger
  * /api/jobs:
@@ -233,8 +229,7 @@ router.get('/:id', [
  *       403:
  *         description: Forbidden - Admin access required
  */
-router.post('/', authenticate, requireAdmin, validateJobCreation, withAuth(jobController.createJob));
-
+router.post('/', auth_middleware_1.authenticate, auth_middleware_1.requireAdmin, validation_middleware_1.validateJobCreation, (0, route_utils_1.withAuth)(job_controller_1.jobController.createJob));
 /**
  * @swagger
  * /api/jobs/{id}:
@@ -266,8 +261,7 @@ router.post('/', authenticate, requireAdmin, validateJobCreation, withAuth(jobCo
  *       404:
  *         description: Job not found
  */
-router.put('/:id', authenticate, requireAdmin, validateJobCreation, withAuth(jobController.updateJob));
-
+router.put('/:id', auth_middleware_1.authenticate, auth_middleware_1.requireAdmin, validation_middleware_1.validateJobCreation, (0, route_utils_1.withAuth)(job_controller_1.jobController.updateJob));
 /**
  * @swagger
  * /api/jobs/{id}:
@@ -293,10 +287,8 @@ router.put('/:id', authenticate, requireAdmin, validateJobCreation, withAuth(job
  *       404:
  *         description: Job not found
  */
-router.delete('/:id', authenticate, requireAdmin, withAuth(jobController.deleteJob));
-
+router.delete('/:id', auth_middleware_1.authenticate, auth_middleware_1.requireAdmin, (0, route_utils_1.withAuth)(job_controller_1.jobController.deleteJob));
 // Public routes
-router.get('/stats', jobController.getJobStats);
-router.get('/:id/similar', jobController.getSimilarJobs);
-
-export default router;
+router.get('/stats', job_controller_1.jobController.getJobStats);
+router.get('/:id/similar', job_controller_1.jobController.getSimilarJobs);
+exports.default = router;

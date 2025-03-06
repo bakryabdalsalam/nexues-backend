@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { AuthenticatedRequest } from '../types';
 
 const prisma = new PrismaClient();
 
@@ -72,9 +73,14 @@ export const getUserProfile = async (req: Request, res: Response) => {
 
 export const applyForJob = async (req: Request, res: Response) => {
   try {
-    const userId = req.user?.id;
+    const user = (req as AuthenticatedRequest).user;
+    if (!user) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+    
+    const userId = user.id;
     const { jobId } = req.params;
-    const { resume, coverLetter } = req.body;
+    const { resume, message } = req.body; // Changed from coverLetter to message
 
     // Check if user has already applied
     const existingApplication = await prisma.application.findFirst({
@@ -91,9 +97,9 @@ export const applyForJob = async (req: Request, res: Response) => {
     const application = await prisma.application.create({
       data: {
         jobId,
-        userId,
+        userId: userId,
         resume,
-        coverLetter,
+        message, // Changed from coverLetter to message
       },
     });
 
@@ -162,4 +168,4 @@ export const getAvailableJobs = async (req: Request, res: Response) => {
     console.error('Get jobs error:', error);
     res.status(500).json({ message: 'Error fetching jobs' });
   }
-}; 
+};

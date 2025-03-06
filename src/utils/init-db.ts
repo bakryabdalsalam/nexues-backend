@@ -1,5 +1,5 @@
 import { db } from '../services/database.service';
-import { EmploymentType, ExperienceLevel, JobCategory } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 export async function initializeDatabase() {
   try {
@@ -25,10 +25,10 @@ export async function initializeDatabase() {
             description: 'React developer needed for a fast-growing startup',
             location: 'Remote',
             salary: 75000,
-            employmentType: EmploymentType.FULL_TIME,
+            employmentType: 'FULL_TIME',
             remote: true,
-            experienceLevel: ExperienceLevel.MID_LEVEL,
-            category: JobCategory.ENGINEERING,
+            experienceLevel: 'MID_LEVEL',
+            category: 'ENGINEERING',
             companyId: companyUser.id
           },
           {
@@ -36,10 +36,10 @@ export async function initializeDatabase() {
             description: 'Node.js developer needed for our core platform',
             location: 'New York',
             salary: 95000,
-            employmentType: EmploymentType.FULL_TIME,
+            employmentType: 'FULL_TIME',
             remote: false,
-            experienceLevel: ExperienceLevel.SENIOR,
-            category: JobCategory.ENGINEERING,
+            experienceLevel: 'SENIOR',
+            category: 'ENGINEERING',
             companyId: companyUser.id
           }
         ]

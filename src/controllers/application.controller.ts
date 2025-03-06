@@ -8,67 +8,20 @@ const prisma = new PrismaClient();
 export const applicationController = {
   async createApplication(req: AuthenticatedRequest, res: Response) {
     try {
-      const { jobId, coverLetter, resume } = req.body;
+      const { jobId } = req.params;
       const userId = req.user.id;
-
-      // Check if job exists
-      const job = await prisma.job.findUnique({
-        where: { id: jobId }
-      });
-
-      if (!job) {
-        throw new AppError(404, 'Job not found');
-      }
-
-      // Check if user has already applied
-      const existingApplication = await prisma.application.findFirst({
-        where: {
-          jobId,
-          userId
-        }
-      });
-
-      if (existingApplication) {
-        throw new AppError(400, 'You have already applied for this job');
-      }
 
       const application = await prisma.application.create({
         data: {
           jobId,
           userId,
-          coverLetter,
-          resume,
           status: 'PENDING'
-        },
-        include: {
-          job: true,
-          user: {
-            select: {
-              id: true,
-              email: true,
-              name: true
-            }
-          }
         }
       });
 
-      res.status(201).json({
-        success: true,
-        data: application
-      });
+      res.status(201).json(application);
     } catch (error) {
-      if (error instanceof AppError) {
-        res.status(error.statusCode).json({
-          success: false,
-          message: error.message
-        });
-      } else {
-        console.error('Application creation error:', error);
-        res.status(500).json({
-          success: false,
-          message: 'Error creating application'
-        });
-      }
+      res.status(500).json({ error: 'Failed to create application' });
     }
   },
 

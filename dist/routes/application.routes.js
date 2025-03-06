@@ -1,14 +1,14 @@
-import { Router } from 'express';
-import { applicationController } from '../controllers/application.controller';
-import { authenticate, requireAdmin } from '../middleware/auth.middleware';
-import { validateApplication } from '../middleware/validation.middleware';
-import { body } from 'express-validator';
-import { prisma } from '../config/prisma';
-import { AuthenticatedRequest } from '../types';
-import { withAuth } from '../utils/route-utils';
-
-const router = Router();
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.applicationRoutes = void 0;
+const express_1 = require("express");
+const application_controller_1 = require("../controllers/application.controller");
+const auth_middleware_1 = require("../middleware/auth.middleware");
+const validation_middleware_1 = require("../middleware/validation.middleware");
+const express_validator_1 = require("express-validator");
+const prisma_1 = require("../config/prisma");
+const route_utils_1 = require("../utils/route-utils");
+const router = (0, express_1.Router)();
 /**
  * @swagger
  * components:
@@ -36,7 +36,6 @@ const router = Router();
  *           type: string
  *           format: date-time
  */
-
 /**
  * @swagger
  * /api/applications:
@@ -84,8 +83,7 @@ const router = Router();
  *       401:
  *         description: Unauthorized
  */
-router.get('/me', authenticate, withAuth(applicationController.getUserApplications));
-
+router.get('/me', auth_middleware_1.authenticate, (0, route_utils_1.withAuth)(application_controller_1.applicationController.getUserApplications));
 /**
  * @swagger
  * /api/applications/{id}:
@@ -118,8 +116,7 @@ router.get('/me', authenticate, withAuth(applicationController.getUserApplicatio
  *       404:
  *         description: Application not found
  */
-router.get('/:id', authenticate, withAuth(applicationController.getApplication));
-
+router.get('/:id', auth_middleware_1.authenticate, (0, route_utils_1.withAuth)(application_controller_1.applicationController.getApplication));
 /**
  * @swagger
  * /api/applications:
@@ -161,8 +158,7 @@ router.get('/:id', authenticate, withAuth(applicationController.getApplication))
  *       400:
  *         description: Invalid input or duplicate application
  */
-router.post('/', authenticate, validateApplication, withAuth(applicationController.createApplication));
-
+router.post('/', auth_middleware_1.authenticate, validation_middleware_1.validateApplication, (0, route_utils_1.withAuth)(application_controller_1.applicationController.createApplication));
 /**
  * @swagger
  * /api/applications/{id}/status:
@@ -209,111 +205,96 @@ router.post('/', authenticate, validateApplication, withAuth(applicationControll
  *       404:
  *         description: Application not found
  */
-router.patch('/:id/status', 
-  authenticate, 
-  requireAdmin,
-  body('status')
+router.patch('/:id/status', auth_middleware_1.authenticate, auth_middleware_1.requireAdmin, (0, express_validator_1.body)('status')
     .isIn(['PENDING', 'REVIEWING', 'ACCEPTED', 'REJECTED'])
-    .withMessage('Invalid status value'),
-  withAuth(applicationController.updateApplicationStatus)
-);
-
+    .withMessage('Invalid status value'), (0, route_utils_1.withAuth)(application_controller_1.applicationController.updateApplicationStatus));
 // Get all applications (admin only)
-router.get('/', authenticate, requireAdmin, withAuth(applicationController.getAllApplications));
-
+router.get('/', auth_middleware_1.authenticate, auth_middleware_1.requireAdmin, (0, route_utils_1.withAuth)(application_controller_1.applicationController.getAllApplications));
 // Create application
-router.post('/', authenticate, withAuth(async (req: AuthenticatedRequest, res) => {
-  try {
-    const { jobId, message, resume } = req.body;
-    const userId = req.user.id;
-
-    // Check if user has already applied
-    const existingApplication = await prisma.application.findFirst({
-      where: {
-        jobId,
-        userId
-      }
-    });
-
-    if (existingApplication) {
-      return res.status(400).json({
-        success: false,
-        message: 'You have already applied for this job'
-      });
-    }
-
-    const application = await prisma.application.create({
-      data: {
-        jobId,
-        userId,
-        message,
-        resume,
-        status: 'PENDING'
-      },
-      include: {
-        job: {
-          include: {
-            company: true
-          }
+router.post('/', auth_middleware_1.authenticate, (0, route_utils_1.withAuth)(async (req, res) => {
+    try {
+        const { jobId, message, resume } = req.body;
+        const userId = req.user.id;
+        // Check if user has already applied
+        const existingApplication = await prisma_1.prisma.application.findFirst({
+            where: {
+                jobId,
+                userId
+            }
+        });
+        if (existingApplication) {
+            return res.status(400).json({
+                success: false,
+                message: 'You have already applied for this job'
+            });
         }
-      }
-    });
-
-    res.status(201).json({
-      success: true,
-      data: application
-    });
-  } catch (error) {
-    console.error('Create application error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error submitting application'
-    });
-  }
+        const application = await prisma_1.prisma.application.create({
+            data: {
+                jobId,
+                userId,
+                message,
+                resume,
+                status: 'PENDING'
+            },
+            include: {
+                job: {
+                    include: {
+                        company: true
+                    }
+                }
+            }
+        });
+        res.status(201).json({
+            success: true,
+            data: application
+        });
+    }
+    catch (error) {
+        console.error('Create application error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error submitting application'
+        });
+    }
 }));
-
 // Get application by ID
-router.get('/:id', authenticate, withAuth(async (req: AuthenticatedRequest, res) => {
-  try {
-    const { id } = req.params;
-    
-    const application = await prisma.application.findUnique({
-      where: { id },
-      include: {
-        job: {
-          include: {
-            company: true
-          }
+router.get('/:id', auth_middleware_1.authenticate, (0, route_utils_1.withAuth)(async (req, res) => {
+    try {
+        const { id } = req.params;
+        const application = await prisma_1.prisma.application.findUnique({
+            where: { id },
+            include: {
+                job: {
+                    include: {
+                        company: true
+                    }
+                }
+            }
+        });
+        if (!application) {
+            return res.status(404).json({
+                success: false,
+                message: 'Application not found'
+            });
         }
-      }
-    });
-
-    if (!application) {
-      return res.status(404).json({
-        success: false,
-        message: 'Application not found'
-      });
+        // Check if user is authorized to view this application
+        if (application.userId !== req.user.id) {
+            return res.status(403).json({
+                success: false,
+                message: 'Not authorized to view this application'
+            });
+        }
+        res.json({
+            success: true,
+            data: application
+        });
     }
-
-    // Check if user is authorized to view this application
-    if (application.userId !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        message: 'Not authorized to view this application'
-      });
+    catch (error) {
+        console.error('Get application error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching application'
+        });
     }
-
-    res.json({
-      success: true,
-      data: application
-    });
-  } catch (error) {
-    console.error('Get application error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching application'
-    });
-  }
 }));
-
-export const applicationRoutes = router;
+exports.applicationRoutes = router;

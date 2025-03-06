@@ -1,12 +1,15 @@
-import { Router } from 'express';
-import authController from '../controllers/auth.controller';
-import { validateRegistration, validateLogin } from '../middleware/validation.middleware';
-import { authenticate } from '../middleware/auth.middleware';
-import { authLimiter, refreshTokenLimiter } from '../middleware/rate-limit.middleware';
-import { withAuth } from '../utils/route-utils';
-
-const router = Router();
-
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const auth_controller_1 = __importDefault(require("../controllers/auth.controller"));
+const validation_middleware_1 = require("../middleware/validation.middleware");
+const auth_middleware_1 = require("../middleware/auth.middleware");
+const rate_limit_middleware_1 = require("../middleware/rate-limit.middleware");
+const route_utils_1 = require("../utils/route-utils");
+const router = (0, express_1.Router)();
 /**
  * @swagger
  * components:
@@ -32,7 +35,6 @@ const router = Router();
  *           type: string
  *           format: date-time
  */
-
 /**
  * @swagger
  * /api/auth/register:
@@ -76,8 +78,7 @@ const router = Router();
  *       400:
  *         description: Invalid input or email already exists
  */
-router.post('/register', authLimiter, validateRegistration, authController.register);
-
+router.post('/register', rate_limit_middleware_1.authLimiter, validation_middleware_1.validateRegistration, auth_controller_1.default.register);
 /**
  * @swagger
  * /api/auth/login:
@@ -121,8 +122,7 @@ router.post('/register', authLimiter, validateRegistration, authController.regis
  *       429:
  *         description: Too many login attempts
  */
-router.post('/login', authLimiter, validateLogin, authController.login);
-
+router.post('/login', rate_limit_middleware_1.authLimiter, validation_middleware_1.validateLogin, auth_controller_1.default.login);
 /**
  * @swagger
  * /api/auth/refresh:
@@ -150,8 +150,7 @@ router.post('/login', authLimiter, validateLogin, authController.login);
  *         description: Invalid or expired refresh token
  */
 // Place the refresh endpoint before authentication middleware
-router.post('/refresh', refreshTokenLimiter, authController.refresh);
-
+router.post('/refresh', rate_limit_middleware_1.refreshTokenLimiter, auth_controller_1.default.refresh);
 /**
  * @swagger
  * /api/auth/me:
@@ -175,11 +174,9 @@ router.post('/refresh', refreshTokenLimiter, authController.refresh);
  *       401:
  *         description: Unauthorized
  */
-router.get('/me', authenticate, withAuth(authController.getProfile));
-
+router.get('/me', auth_middleware_1.authenticate, (0, route_utils_1.withAuth)(auth_controller_1.default.getProfile));
 // Protected routes (require authentication)
-router.use(authenticate);
-router.post('/logout', authController.logout);
-router.get('/verify', withAuth(authController.verifyToken));
-
-export default router;
+router.use(auth_middleware_1.authenticate);
+router.post('/logout', auth_controller_1.default.logout);
+router.get('/verify', (0, route_utils_1.withAuth)(auth_controller_1.default.verifyToken));
+exports.default = router;

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authenticate } from '../middleware/auth.middleware';
 import { companyController } from '../controllers/company.controller';
 import { checkRole } from '../middleware/auth.middleware';
+import { withAuth } from '../utils/route-utils';
 
 const router = Router();
 
@@ -9,21 +10,15 @@ const router = Router();
 router.use(authenticate);
 router.use(checkRole(['COMPANY']));
 
-// Company stats route
-router.get('/stats', companyController.getStats);
-
-// Company profile routes
-router.get('/profile', companyController.getProfile);
-router.put('/profile', companyController.updateProfile);
-
-// Company jobs management routes
-router.get('/jobs', companyController.getJobs);
-router.post('/jobs', companyController.createJob);
-router.put('/jobs/:id', companyController.updateJob);
-router.delete('/jobs/:id', companyController.deleteJob);
-
-// Job applications management routes
-router.get('/jobs/:id/applications', companyController.getJobApplications);
-router.patch('/jobs/:jobId/applications/:applicationId', companyController.updateApplicationStatus);
+// Use withAuth wrapper for all controller methods
+router.get('/stats', withAuth(companyController.getStats));
+router.get('/profile', withAuth(companyController.getProfile));
+router.put('/profile', withAuth(companyController.updateProfile));
+router.get('/jobs', withAuth(companyController.getJobs));
+router.post('/jobs', withAuth(companyController.createJob));
+router.put('/jobs/:id', withAuth(companyController.updateJob));
+router.delete('/jobs/:id', withAuth(companyController.deleteJob));
+router.get('/jobs/:id/applications', withAuth(companyController.getJobApplications));
+router.patch('/jobs/:jobId/applications/:applicationId', withAuth(companyController.updateApplicationStatus));
 
 export { router as companyRoutes };

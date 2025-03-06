@@ -4,15 +4,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../config/prisma';
 import { AppError } from '../middleware/error.middleware';
-import { AuthenticatedRequest } from '../types';
+import { AuthenticatedRequest, TokenPayload } from '../types';
 import { generateToken, verifyToken } from '../utils/jwt';
-
-interface AuthRequest extends Request {
-  user?: {
-    id: string;
-    role: UserRole;
-  };
-}
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -57,8 +50,8 @@ const authController = {
         }
       });
 
-      const accessToken = generateToken(user.id, '15m');
-      const refreshToken = generateToken(user.id, '7d');
+      const accessToken = generateToken(user.id, user.role, user.email, '15m');
+      const refreshToken = generateToken(user.id, user.role, user.email, '7d');
 
       res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS);
 
@@ -108,8 +101,8 @@ const authController = {
         });
       }
 
-      const accessToken = generateToken(user.id, '15m');
-      const refreshToken = generateToken(user.id, '7d');
+      const accessToken = generateToken(user.id, user.role, user.email, '15m');
+      const refreshToken = generateToken(user.id, user.role, user.email, '7d');
 
       res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS);
 
@@ -177,8 +170,8 @@ const authController = {
         }
 
         // Generate new tokens
-        const accessToken = generateToken(user.id, '15m');
-        const newRefreshToken = generateToken(user.id, '7d');
+        const accessToken = generateToken(user.id, user.role, user.email, '15m');
+        const newRefreshToken = generateToken(user.id, user.role, user.email, '7d');
 
         // Set the new refresh token in cookie
         res.cookie('refreshToken', newRefreshToken, COOKIE_OPTIONS);
