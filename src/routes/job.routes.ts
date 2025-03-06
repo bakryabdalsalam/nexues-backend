@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { jobController } from '../controllers/job.controller';
 import { authenticate, requireAdmin } from '../middleware/auth.middleware';
 import { validateJobCreation } from '../middleware/validation.middleware';
@@ -292,7 +292,13 @@ router.put('/:id', authenticate, requireAdmin, validateJobCreation, jobControlle
  *       404:
  *         description: Job not found
  */
-router.delete('/:id', authenticate, requireAdmin, jobController.deleteJob);
+router.delete('/:id', authenticate, requireAdmin, (req: Request, res: Response, next: NextFunction) => {
+  jobController.deleteJob(req as AuthenticatedRequest, res).catch(next);
+});
+
+router.patch('/:id/status', authenticate, requireAdmin, (req: Request, res: Response, next: NextFunction) => {
+  jobController.updateJobStatus(req as AuthenticatedRequest, res).catch(next);
+});
 
 // Public routes
 router.get('/stats', jobController.getJobStats);

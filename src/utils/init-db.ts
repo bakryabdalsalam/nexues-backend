@@ -1,16 +1,22 @@
-import { db } from '../services/database.service';
-import { EmploymentType, ExperienceLevel, JobCategory } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
-export async function initializeDatabase() {
+const prisma = new PrismaClient();
+
+export const initializeDatabase = async () => {
+  // Use string literals instead of enums
+  const employmentTypes = ['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERNSHIP'];
+  const experienceLevels = ['ENTRY', 'JUNIOR', 'MID', 'SENIOR', 'LEAD'];
+  const jobCategories = ['ENGINEERING', 'DESIGN', 'MARKETING', 'SALES', 'CUSTOMER_SERVICE', 'OTHER'];
+
   try {
     // Create test jobs if none exist
-    const jobCount = await db.job.count();
+    const jobCount = await prisma.job.count();
     
     if (jobCount === 0) {
       console.log('Seeding initial jobs...');
       
       // First, ensure we have a company user
-      const companyUser = await db.user.findFirst({
+      const companyUser = await prisma.user.findFirst({
         where: { role: 'COMPANY' }
       });
 
@@ -18,17 +24,17 @@ export async function initializeDatabase() {
         throw new Error('No company user found. Please run database seed first.');
       }
 
-      await db.job.createMany({
+      await prisma.job.createMany({
         data: [
           {
             title: 'Frontend Developer',
             description: 'React developer needed for a fast-growing startup',
             location: 'Remote',
             salary: 75000,
-            employmentType: EmploymentType.FULL_TIME,
+            employmentType: 'FULL_TIME',
             remote: true,
-            experienceLevel: ExperienceLevel.MID_LEVEL,
-            category: JobCategory.ENGINEERING,
+            experienceLevel: 'MID',
+            category: 'ENGINEERING',
             companyId: companyUser.id
           },
           {
@@ -36,10 +42,10 @@ export async function initializeDatabase() {
             description: 'Node.js developer needed for our core platform',
             location: 'New York',
             salary: 95000,
-            employmentType: EmploymentType.FULL_TIME,
+            employmentType: 'FULL_TIME',
             remote: false,
-            experienceLevel: ExperienceLevel.SENIOR,
-            category: JobCategory.ENGINEERING,
+            experienceLevel: 'SENIOR',
+            category: 'ENGINEERING',
             companyId: companyUser.id
           }
         ]
@@ -52,4 +58,4 @@ export async function initializeDatabase() {
     console.error('Database initialization error:', error);
     return false;
   }
-}
+};

@@ -77,6 +77,7 @@ model Profile {
   user        User      @relation(fields: [userId], references: [id])
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  resume      String?   @db.Text
 }
 
 model Job {
