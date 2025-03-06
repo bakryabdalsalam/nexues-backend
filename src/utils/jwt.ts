@@ -10,12 +10,12 @@ export const generateToken = (payload: TokenPayload, expiresIn: string): string 
     role: payload.role
   };
 
-  // Explicitly declare sign options so that the correct overload is used.
   const options: jwt.SignOptions = { expiresIn };
 
-  return jwt.sign(jwtPayload, JWT_SECRET, options);
+  // Cast the secret as unknown then as jwt.Secret to satisfy the type
+  return jwt.sign(jwtPayload, JWT_SECRET as unknown as jwt.Secret, options);
 };
 
 export const verifyToken = (token: string): JWTPayload => {
-  return jwt.verify(token, JWT_SECRET) as JWTPayload;
+  return jwt.verify(token, JWT_SECRET as unknown as jwt.Secret) as JWTPayload;
 };
