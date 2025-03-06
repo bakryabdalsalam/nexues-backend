@@ -27,6 +27,14 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false
 }));
 
+// Swagger Documentation
+const specs = swaggerJsdoc(swaggerOptions);
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(specs, { explorer: true })
+);
+
 // CORS setup with proper options for cookies
 // Support multiple origins for development and production
 const allowedOrigins = [
