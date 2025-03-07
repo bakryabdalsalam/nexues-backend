@@ -81,7 +81,14 @@ const authController = {
       const user = await prisma.user.findUnique({
         where: { email },
         include: {
-          profile: true,
+          profile: {
+            select: {
+              id: true,
+              fullName: true,
+              bio: true,
+              avatar: true
+            }
+          },
           company: true
         }
       });
@@ -218,7 +225,15 @@ const authController = {
       const user = await prisma.user.findUnique({
         where: { id: req.user.id },
         include: {
-          profile: true,
+          profile: {
+            select: {
+              id: true,
+              fullName: true,
+              bio: true,
+              avatar: true,
+              skills: true
+            }
+          },
           company: true,
           applications: true
         }
