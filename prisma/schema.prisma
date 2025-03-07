@@ -73,7 +73,7 @@ model Profile {
   linkedIn    String?
   github      String?
   portfolio   String?
-  resume      String?
+  resume      String?   // Make sure this field exists
   userId      String    @unique
   user        User      @relation(fields: [userId], references: [id])
   createdAt   DateTime  @default(now())
