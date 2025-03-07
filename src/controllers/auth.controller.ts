@@ -41,12 +41,23 @@ const authController = {
           role,
           profile: {
             create: {
-              fullName: name
+              fullName: name,
+              bio: '',
+              avatar: null,
+              skills: []
             }
           }
         },
         include: {
-          profile: true
+          profile: {
+            select: {
+              id: true,
+              fullName: true,
+              bio: true,
+              avatar: true,
+              skills: true
+            }
+          }
         }
       });
 
