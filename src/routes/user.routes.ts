@@ -16,30 +16,54 @@ router.get('/profile', authenticate, async (req, res) => {
     }
 
     const user = await prisma.user.findUnique({
-      where: { 
-        id: req.user.id,
-      },
+      where: { id: req.user.id },
       include: {
-        profile: true
+        profile: {
+          select: {
+            id: true,
+            fullName: true,
+            bio: true,
+            avatar: true,
+            skills: true,
+            experience: true,
+            education: true,
+            phoneNumber: true,
+            address: true,
+            linkedIn: true,
+            github: true,
+            portfolio: true
+          }
+        },
+        applications: {
+          include: {
+            job: {
+              include: {
+                company: true
+              }
+            }
+          }
+        }
       }
     });
 
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: 'Profile not found'
       });
     }
 
+    const { password: _, ...userWithoutPassword } = user;
+
     res.json({
       success: true,
-      data: user
+      data: userWithoutPassword
     });
   } catch (error) {
-    console.error('Get user profile error:', error);
+    console.error('Get profile error:', error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching user profile'
+      message: 'Error fetching profile'
     });
   }
 });
